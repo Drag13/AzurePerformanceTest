@@ -1,0 +1,25 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Display Name</th>
+            <th>Reputation</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr> <td>  @user.DisplayName</td> <td> reputation: @user.Reputation</td></tr>
+        }
+
+    </tbody>
+</table>
+
+
+    Elapsed: <span id="elapsed">@Model.Elapsed</span> 
