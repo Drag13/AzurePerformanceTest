@@ -13,11 +13,12 @@ let getIntFromArgs = getFromArgsOrDefault (fun x-> Convert.ToInt32 x)
 [<EntryPoint>]
 let main argv =
     let url = getStringFromArgs argv 0 "https://drag13.io"
-    let rate = getIntFromArgs argv 1 100
+    let rate = getIntFromArgs argv 1 50
     let loadingTimeSeconds = getIntFromArgs argv 2 60
     printfn "Bombing %s for %d rps during %d seconds" url rate loadingTimeSeconds
     
     let step = Step.create("index.html", 
+                            timeout = seconds 5,
                             clientFactory = HttpClientFactory.create(), 
                             execute = fun context -> 
                             Http.createRequest "GET" url
@@ -30,7 +31,7 @@ let main argv =
         |> Scenario.withLoadSimulations [
                    InjectPerSec(rate = rate, during = seconds loadingTimeSeconds)
                ]    
-    
+
     NBomberRunner.registerScenario scenario
     |> NBomberRunner.run
     |> ignore
