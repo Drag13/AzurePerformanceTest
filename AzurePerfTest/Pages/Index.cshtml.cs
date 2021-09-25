@@ -1,10 +1,11 @@
 ﻿using AzurePerfTest.DAL;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace AzurePerfTest.Pages
 {
@@ -33,15 +34,20 @@ namespace AzurePerfTest.Pages
         {
             _sw.Start();
 
-            var userName = GetRandomTrygram();
-            _users = _ctx.Users.Where(x => x.DisplayName.Contains(userName)).Take(25).ToArray();
+            var userName = GetRandomName();
+            var p1 = new SqlParameter("@UserName", $"%{userName}%");
+            var query = _ctx.Users.FromSqlRaw($"SELECT TOP 25 * From Users Where DisplayName like @UserName ORDER BY DisplayName", p1);
+
+            //var query = _ctx.Users.Where(x => x.DisplayName.Contains(userName)).OrderBy(x => x.DisplayName).Take(25);
+            //Console.WriteLine(query.ToQueryString());
+            _users = query.ToArray();
             _sw.Stop();
             var elapsed = _sw.ElapsedMilliseconds;
             _logger.LogInformation($"PERF:{nameof(IndexModel)}.${nameof(OnGet)}:{_sw.ElapsedMilliseconds}", _sw.ElapsedMilliseconds);
             _elapsed = elapsed;
         }
 
-        private string GetRandomTrygram()
+        private string GetRandomName()
         {
             var res = new char[] {
                 _symbols[_rnd.Next(_size)],
