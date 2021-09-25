@@ -35,8 +35,8 @@ namespace AzurePerfTest.Pages
             _sw.Start();
 
             var userName = GetRandomName();
-            var p1 = new SqlParameter("@UserName", $"%{userName}%");
-            var query = _ctx.Users.FromSqlRaw($"SELECT TOP 25 * From Users Where DisplayName like @UserName ORDER BY DisplayName", p1);
+            var p1 = new SqlParameter("@DisplayName", $"%{userName}%");
+            var query = _ctx.Users.FromSqlRaw($"GetUsersByDisplayName @DisplayName", p1);
 
             //var query = _ctx.Users.Where(x => x.DisplayName.Contains(userName)).OrderBy(x => x.DisplayName).Take(25);
             //Console.WriteLine(query.ToQueryString());
