@@ -33,9 +33,8 @@ namespace AzurePerfTest.Pages
         {
             _sw.Start();
 
-            HttpContext.Request.Query.TryGetValue("name", out StringValues names);
             var userName = GetRandomTrygram();
-            _users = _ctx.Users.Where(x => string.IsNullOrEmpty(userName) || x.DisplayName.Contains(userName)).Take(25).ToArray();
+            _users = _ctx.Users.Where(x => x.DisplayName.Contains(userName)).Take(25).ToArray();
             _sw.Stop();
             var elapsed = _sw.ElapsedMilliseconds;
             _logger.LogInformation($"PERF:{nameof(IndexModel)}.${nameof(OnGet)}:{_sw.ElapsedMilliseconds}", _sw.ElapsedMilliseconds);

@@ -12,13 +12,13 @@ let getIntFromArgs = getFromArgsOrDefault (fun x-> Convert.ToInt32 x)
 
 [<EntryPoint>]
 let main argv =
-    let url = getStringFromArgs argv 0 "https://drag13.io"
-    let rate = getIntFromArgs argv 1 50
+    let url = getStringFromArgs argv 0 "https://azperf.azurewebsites.net/"
+    let rate = getIntFromArgs argv 1 1
     let loadingTimeSeconds = getIntFromArgs argv 2 60
     printfn "Bombing %s for %d rps during %d seconds" url rate loadingTimeSeconds
     
     let step = Step.create("index.html", 
-                            timeout = seconds 5,
+                            timeout = seconds 10,
                             clientFactory = HttpClientFactory.create(), 
                             execute = fun context -> 
                             Http.createRequest "GET" url
@@ -36,4 +36,5 @@ let main argv =
     |> NBomberRunner.run
     |> ignore
 
-    0 // return an integer exit code
+    0 // return an integer exit 
+    
