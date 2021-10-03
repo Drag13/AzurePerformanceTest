@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace AzurePerfTest.Pages
 {
@@ -35,17 +36,45 @@ namespace AzurePerfTest.Pages
             _sw.Start();
 
             var userName = GetRandomName();
-            var p1 = new SqlParameter("@DisplayName", $"%{userName}%");
-            var query = _ctx.Users.FromSqlRaw($"GetUsersByDisplayName @DisplayName", p1);
-
-            //var query = _ctx.Users.Where(x => x.DisplayName.Contains(userName)).OrderBy(x => x.DisplayName).Take(25);
-            //Console.WriteLine(query.ToQueryString());
-            _users = query.ToArray();
+            _users = GetUsersEF(userName);
             _sw.Stop();
             var elapsed = _sw.ElapsedMilliseconds;
             _logger.LogInformation($"PERF:{nameof(IndexModel)}.${nameof(OnGet)}:{_sw.ElapsedMilliseconds}", _sw.ElapsedMilliseconds);
             _elapsed = elapsed;
         }
+
+        private User[] GetUsersEF(string key)
+        {
+            return _ctx.Users
+                .Where(x => x.DisplayName.StartsWith(key))
+                .OrderBy(x => x.DisplayName)
+                .Take(25)
+                .ToArray();
+        }
+
+        private Task<User[]> GetUsersEFAsync(string key)
+        {
+            return _ctx.Users
+                .Where(x => x.DisplayName.Contains(key))
+                .OrderBy(x => x.DisplayName)
+                .Take(25)
+                .ToArrayAsync();
+        }
+
+        private User[] GetUsersSQL(string key)
+        {
+            var p1 = new SqlParameter("@DisplayName", $"%{key}%");
+            var query = _ctx.Users.FromSqlRaw($"SELECT TOP 25 * FROM USERS WITH (NOLOCK) WHERE DisplayName LIKE @DisplayName+'%' ORDER BY DisplayName", p1);
+            return query.ToArray();
+        }
+
+        private User[] GetUsersSP(string key)
+        {
+            var p1 = new SqlParameter("@DisplayName", $"%{key}%");
+            var query = _ctx.Users.FromSqlRaw($"GetUsersByDisplayName @DisplayName", p1);
+            return query.ToArray();
+        }
+
 
         private string GetRandomName()
         {
