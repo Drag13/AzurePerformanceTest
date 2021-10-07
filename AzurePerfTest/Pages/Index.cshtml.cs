@@ -36,7 +36,7 @@ namespace AzurePerfTest.Pages
             _sw.Start();
 
             var userName = GetRandomName();
-            _users = GetUsersEF(userName);
+            _users = GetUsersSQL(userName);
             _sw.Stop();
             var elapsed = _sw.ElapsedMilliseconds;
             _logger.LogInformation($"PERF:{nameof(IndexModel)}.${nameof(OnGet)}:{_sw.ElapsedMilliseconds}", _sw.ElapsedMilliseconds);
@@ -63,8 +63,8 @@ namespace AzurePerfTest.Pages
 
         private User[] GetUsersSQL(string key)
         {
-            var p1 = new SqlParameter("@DisplayName", $"%{key}%");
-            var query = _ctx.Users.FromSqlRaw($"SELECT TOP 25 * FROM USERS WITH (NOLOCK) WHERE DisplayName LIKE @DisplayName+'%' ORDER BY DisplayName", p1);
+            var p1 = new SqlParameter("@DisplayName", $"{key}%");
+            var query = _ctx.Users.FromSqlRaw($"SELECT TOP 25 * FROM USERS WITH (NOLOCK) WHERE DisplayName LIKE @DisplayName ORDER BY DisplayName", p1);
             return query.ToArray();
         }
 
