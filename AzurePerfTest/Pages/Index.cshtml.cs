@@ -36,7 +36,7 @@ namespace AzurePerfTest.Pages
             _sw.Start();
 
             var userName = GetRandomName();
-            _users = GetUsersSQL(userName);
+            _users = GetUsersEF(userName);
             _sw.Stop();
             var elapsed = _sw.ElapsedMilliseconds;
             _logger.LogInformation($"PERF:{nameof(IndexModel)}.${nameof(OnGet)}:{_sw.ElapsedMilliseconds}", _sw.ElapsedMilliseconds);
